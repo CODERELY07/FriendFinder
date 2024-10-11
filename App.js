@@ -1,63 +1,34 @@
 import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Button, TouchableOpacity } from "react-native";
-import Login from "./Screen/Login";
+import { StyleSheet } from "react-native";
+import Screen1 from "./Screen/Screen1";
+import Screen2 from "./Screen/Screen2";
+import Screen3 from "./Screen/Screen3";
 
 const Stack = createNativeStackNavigator();
-function HomeScreen({ navigation }) {
-  return (
-    <>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={{ marginBottom: 20 }}
-      >
-        <Text style={{ fontSize: 20 }}>← Back</Text>
-      </TouchableOpacity>
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Text>Home Screen</Text>
-        <Button
-          title="Go to Login Screen"
-          onPress={() => navigation.navigate("Details")}
-        />
-      </View>
-    </>
-  );
-}
-function DetailsScreen({ navigation }) {
-  return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>Details Screen</Text>
-      <Button
-        title="Go to Details... again"
-        onPress={() => navigation.navigate("Home")}
-      />
-    </View>
-  );
-}
+
 export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
-          name="LOGIN"
+          name="Screen1"
           options={{ headerShown: false }}
-          component={Login}
+          component={Screen1}
         />
         <Stack.Screen
-          name="Details"
+          name="Screen2"
           options={{ headerShown: false }}
-          component={DetailsScreen}
+          component={Screen2}
         />
         <Stack.Screen
-          name="Home"
+          name="Screen3"
           options={{ headerShown: false }}
-          component={HomeScreen}
+          component={Screen3}
         />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({});
