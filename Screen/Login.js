@@ -1,7 +1,10 @@
 import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-export default function Login() {
+const Stack = createNativeStackNavigator();
+export default function Login({navigation}) {
   const [currentPage, setCurrentPage] = useState(0);
 
   const handleContinue = () => {
@@ -35,7 +38,8 @@ export default function Login() {
       <Text style={[styles.description, styles.para]}>
         Our app unites you with like-minded individuals in your area, making meaningful connections effortless.
       </Text>
-      <TouchableOpacity style={styles.button} onPress={handleContinue}>
+      <TouchableOpacity style={styles.button}
+      onPress={() => navigation.navigate('Home')}>
         <Text style={styles.buttonText}>Continue</Text>
       </TouchableOpacity>
       <View style={styles.indicatorContainer}>
@@ -47,8 +51,10 @@ export default function Login() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 80,
+    paddingTop:120,
     padding: 20,
+    backgroundColor:'#fff',
+    flex:1,
   },
   title: {
     fontSize: 24,
