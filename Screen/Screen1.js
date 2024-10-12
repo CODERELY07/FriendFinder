@@ -1,8 +1,8 @@
 import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import externalStyles from "../style/externalStyle";
 
-export default function Screen1({navigation}) {
+export default function Screen1({ navigation ,route}) {
   const [currentPage, setCurrentPage] = useState(0);
 
   const renderIndicators = () => {
@@ -15,6 +15,10 @@ export default function Screen1({navigation}) {
         ]}
       />
     ));
+  };
+  const handleContinue = () => {
+    setCurrentPage(0); 
+    navigation.navigate('Screen2', { currentPage: 1 }); 
   };
 
   return (
@@ -31,8 +35,7 @@ export default function Screen1({navigation}) {
       <Text style={[externalStyles.description, externalStyles.para]}>
         Our app unites you with like-minded individuals in your area, making meaningful connections effortless.
       </Text>
-      <TouchableOpacity style={externalStyles.button}
-      onPress={() => navigation.navigate('Screen2')}>
+      <TouchableOpacity style={externalStyles.button} onPress={handleContinue}>
         <Text style={externalStyles.buttonText}>Continue</Text>
       </TouchableOpacity>
       <View style={externalStyles.indicatorContainer}>
@@ -44,9 +47,9 @@ export default function Screen1({navigation}) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop:120,
+    paddingTop: 120,
     padding: 20,
-    backgroundColor:'#fff',
-    flex:1,
+    backgroundColor: '#fff',
+    flex: 1,
   }
 });
