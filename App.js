@@ -5,7 +5,7 @@ import { StyleSheet } from "react-native";
 import Screen1 from "./Screen/Screen1";
 import Screen2 from "./Screen/Screen2";
 import Screen3 from "./Screen/Screen3";
-
+import Main from "./Screen/Main";
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -26,6 +26,11 @@ export default function App() {
           name="Screen3"
           options={{ headerShown: false }}
           component={Screen3}
+        />
+         <Stack.Screen
+          name="Main"
+          options={{ headerShown: false }}
+          component={Main}
         />
       </Stack.Navigator>
     </NavigationContainer>

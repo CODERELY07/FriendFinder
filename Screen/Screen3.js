@@ -51,14 +51,14 @@ import {
   
             <TouchableOpacity
               style={styles.button}
-              onPress={() => navigation.navigate('home')}
+              onPress={() => navigation.navigate('Main')}
             >
               <Text style={styles.buttonText}>Sign Up</Text>
             </TouchableOpacity>
   
             <TouchableOpacity
               style={styles.button1}
-              onPress={() => navigation.navigate('home')}
+              onPress={() => navigation.navigate('Main')}
             >
               <Text style={[styles.buttonText, styles.buttonTextBlack]}>Sign In</Text>
             </TouchableOpacity>
