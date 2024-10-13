@@ -65,6 +65,35 @@ const externalStyles = StyleSheet.create({
   inactiveCircle: {
     backgroundColor: '#B0B0B0',
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  headerText: {
+    fontWeight: "bold",
+    fontSize: 18,
+    marginLeft: 10,
+  },
+  subHeaderText: {
+    color: "#717070",
+    fontWeight: "400",
+    fontSize: 12,
+  },
+  locationBox: {
+    marginTop: 24,
+    borderColor: 'rgba(0,0,0,0.1)',
+    borderWidth: 1,
+    borderRadius: 3,
+    backgroundColor: '#fff',
+    marginBottom: 15,
+    width: 230, // Set a fixed width for each location box
+    marginRight: 10,
+  },
 });
 
 export default externalStyles;
