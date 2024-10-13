@@ -4,7 +4,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons"; 
-import { StyleSheet } from "react-native";
 import Screen1 from "./Screen/Screen1";
 import Screen2 from "./Screen/Screen2";
 import Screen3 from "./Screen/Screen3";

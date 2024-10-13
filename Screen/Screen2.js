@@ -13,7 +13,7 @@ export default function Screen2({ navigation, route }) {
   const { currentPage } = route.params; 
 
   const handleContinue = () => {
-    navigation.navigate('Screen3', { currentPage: currentPage + 1 }); // Increment current page
+    navigation.navigate('Screen3', { currentPage: currentPage + 1 }); 
   };
   const renderIndicators = () => {
     return [0, 1, 2].map((index) => (

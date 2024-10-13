@@ -91,7 +91,7 @@ const externalStyles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: '#fff',
     marginBottom: 15,
-    width: 230, // Set a fixed width for each location box
+    width: 230,
     marginRight: 10,
   },
 });

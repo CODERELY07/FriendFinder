@@ -4,15 +4,12 @@ import {
   View,
   SafeAreaView,
   StyleSheet,
-  FlatList,
   TouchableOpacity,
   Image,
 } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import externalStyles from "../style/externalStyle";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import { TextInput } from "react-native"; 
 
 function ProfileScreen({ navigation }) {
   return (
