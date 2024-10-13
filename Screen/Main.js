@@ -1,9 +1,10 @@
 import * as React from "react";
-import { Button, Text, View, Image, SafeAreaView } from "react-native";
+import { Button, Text, View, Image, SafeAreaView, StyleSheet,TextInput} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Feather from "@expo/vector-icons/Feather";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { ImageBackground } from "react-native-web";
 
 function DetailsScreen() {
   return (
@@ -106,6 +107,67 @@ function HomeScreen({ navigation }) {
         <Text style={{ fontWeight: "500", fontSize: 18 }}>
             Location of Friends Nearby!
         </Text>
+      </View>
+        
+      <View style={{flexDirection:'row',gap:20}}>
+        <View style={styles.locationBox}>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              gap: 10,
+              borderColor:'rgba(0,0,0,0.1)',
+              borderBottomWidth:1,
+              padding:10,
+              alignItems: "center",
+            }}
+          >
+            <Image
+              source={{
+                uri: "https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg",
+              }}
+              style={{ width: 30, height: 30, borderRadius: 15 }}
+            />
+            <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+              John Doe {"\n"}
+              <Text style={{ color: "#717070", fontWeight: "400", fontSize: 12 }}>
+                Join the fun!
+              </Text>
+            </Text>
+          </View>
+          <View style={{height:200}}>
+            <Image source={{uri: 'https://i.sstatic.net/HILmr.png'}} style={{width:'100%',height:'100%'}}/>
+          </View>
+        </View>
+        <View style={styles.locationBox}>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              gap: 10,
+              borderColor:'rgba(0,0,0,0.1)',
+              borderBottomWidth:1,
+              padding:10,
+              alignItems: "center",
+            }}
+          >
+            <Image
+              source={{
+                uri: "https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg",
+              }}
+              style={{ width: 30, height: 30, borderRadius: 15 }}
+            />
+            <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+              John Doe {"\n"}
+              <Text style={{ color: "#717070", fontWeight: "400", fontSize: 12 }}>
+                Join the fun!
+              </Text>
+            </Text>
+          </View>
+          <View style={{height:200}}>
+            <Image source={{uri: 'https://i.sstatic.net/HILmr.png'}} style={{width:'100%',height:'100%'}}/>
+          </View>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -231,3 +293,18 @@ export default function Main() {
     </Tab.Navigator>
   );
 }
+const styles = StyleSheet.create({
+
+  locationBox: {
+    marginTop:24,
+    borderColor:'rgba(0,0,0,0.1)',
+    borderWidth:1,
+    width: '75%',
+    borderRadius:3,
+    backgroundColor: '#fff',
+    elevation: 0,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+});
