@@ -12,6 +12,10 @@ import {
   
   export default function Screen3({ navigation, route }) {
     const { currentPage } = route.params; 
+
+    const Link = () => {
+      Linking.openURL('http://www.freepik.com');
+    };
     const renderIndicators = () => {
         return [0, 1, 2].map((index) => (
             <View
@@ -48,7 +52,7 @@ import {
                 Join Us Today! Sign up now to unlock exciting opportunities and create meaningful connections.
               </Text>
             </View>
-  
+      
             <TouchableOpacity
               style={styles.button}
               onPress={() => navigation.navigate('Main')}
@@ -62,7 +66,12 @@ import {
             >
               <Text style={[styles.buttonText, styles.buttonTextBlack]}>Sign In</Text>
             </TouchableOpacity>
-  
+            <Text style={[styles.text, externalStyles.link]}>
+                Designed by{' '}
+                <Text style={styles.link} onPress={Link}>
+                  Freepik
+                </Text>
+            </Text>
             <Text style={styles.small}>
               Already have an account? click Login
               {"\n"}Doesn’t have an account yet? click Sign Up

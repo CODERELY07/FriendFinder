@@ -19,23 +19,23 @@ function HomeScreen() {
   const friendsData = [
     {
       id: "1",
-      uri: "https://t4.ftcdn.net/jpg/06/51/71/33/360_F_651713397_M2PPLdBT4CWwOwcvXMIUSECRtiJeqDN1.jpg",
+      uri: "https://www.shutterstock.com/image-photo/profile-picture-smiling-young-african-260nw-1873784920.jpg",
     },
     {
       id: "2",
-      uri: "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/50dab922-5d48-4c6b-8725-7fd0755d9334/3a3f2d35-8167-4708-9ef0-bdaa980989f9.png",
+      uri: "https://media.gettyimages.com/id/1317804578/photo/one-businesswoman-headshot-smiling-at-the-camera.jpg?s=612x612&w=gi&k=20&c=tFkDOWmEyqXQmUHNxkuR5TsmRVLi5VZXYm3mVsjee0E=",
     },
     {
       id: "3",
-      uri: "https://thumbs.dreamstime.com/b/head-shot-portrait-confident-businessman-looking-camera-posing-profile-picture-making-video-call-to-business-partners-coach-212585716.jpg",
+      uri: "https://cdn.pixabay.com/photo/2019/11/03/20/11/portrait-4599553_1280.jpg",
     },
     {
       id: "4",
-      uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6BkMQEKHWILXy8SzbX5aocWP6YWv0mZnSDA&s",
+      uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCWG18FMyS1pXtWKr4Eb7_XLr0lScrVylmpg&s",
     },
     {
       id: "5",
-      uri: "https://marketplace.canva.com/EAFqNrAJpQs/1/0/1600w/canva-neutral-pink-modern-circle-shape-linkedin-profile-picture-WAhofEY5L1U.jpg",
+      uri: "https://www.shutterstock.com/image-photo/profile-picture-smiling-successful-young-260nw-2040223583.jpg",
     },
   ];
 
@@ -43,13 +43,13 @@ function HomeScreen() {
     {
       id: "1",
       name: "Emily Davis",
-      uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6BkMQEKHWILXy8SzbX5aocWP6YWv0mZnSDA&s",
+      uri: "https://media.gettyimages.com/id/1317804578/photo/one-businesswoman-headshot-smiling-at-the-camera.jpg?s=612x612&w=gi&k=20&c=tFkDOWmEyqXQmUHNxkuR5TsmRVLi5VZXYm3mVsjee0E=",
       mapUri: "https://i.sstatic.net/HILmr.png",
     },
     {
       id: "2",
       name: "Jane Smith",
-      uri: "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/50dab922-5d48-4c6b-8725-7fd0755d9334/3a3f2d35-8167-4708-9ef0-bdaa980989f9.png",
+      uri: "https://cdn.pixabay.com/photo/2019/11/03/20/11/portrait-4599553_1280.jpg",
       mapUri: "https://i.sstatic.net/HILmr.png",
     },
   ];

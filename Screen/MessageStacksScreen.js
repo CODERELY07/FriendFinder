@@ -13,13 +13,13 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { TextInput } from "react-native"; 
 
 const messagesData = [
-  { id: '1', title: 'Rose Angel', content: 'How are you?', imageUrl: 'https://media.istockphoto.com/id/1437816897/photo/business-woman-manager-or-human-resources-portrait-for-career-success-company-we-are-hiring.jpg?s=612x612&w=0&k=20&c=tyLvtzutRh22j9GqSGI33Z4HpIwv9vL_MZw_xOE19NQ=' },
-  { id: '2', title: 'Jack Thomas', content: 'Don\'t forget our meeting at 10 AM.', imageUrl: 'https://www.shutterstock.com/image-photo/profile-picture-smiling-young-african-260nw-1873784920.jpg' },
-  { id: '3', title: 'Thomas Brown', content: 'Want to grab lunch today?', imageUrl: 'https://thumbs.dreamstime.com/b/head-shot-portrait-confident-businessman-looking-camera-posing-profile-picture-making-video-call-to-business-partners-coach-212585716.jpg' },
-  { id: '4', title: 'Emily Davis', content: 'We need to review the budget.', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6BkMQEKHWILXy8SzbX5aocWP6YWv0mZnSDA&s' },
-  { id: '5', title: 'Sarah Lee', content: 'Have you heard about the latest iPhone?', imageUrl: 'https://marketplace.canva.com/EAFqNrAJpQs/1/0/1600w/canva-neutral-pink-modern-circle-shape-linkedin-profile-picture-WAhofEY5L1U.jpg' },
-  { id: '6', title: 'Jane Smith', content: 'Are you available for a call tomorrow?', imageUrl: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/50dab922-5d48-4c6b-8725-7fd0755d9334/3a3f2d35-8167-4708-9ef0-bdaa980989f9.png' },
-  { id: '7', title: 'David Johnson', content: 'I need to schedule a meeting with my team.', imageUrl: 'https://t4.ftcdn.net/jpg/06/51/71/33/360_F_651713397_M2PPLdBT4CWwOwcvXMIUSECRtiJeqDN1.jpg' }, 
+  { id: '1', title: 'Rose Angel', content: 'How are you?', imageUrl: 'https://media.istockphoto.com/id/1154642632/photo/close-up-portrait-of-brunette-woman.jpg?s=612x612&w=0&k=20&c=d8W_C2D-2rXlnkyl8EirpHGf-GpM62gBjpDoNryy98U=' },
+  { id: '2', title: 'Jack Thomas', content: 'Hello', imageUrl: 'https://www.shutterstock.com/image-photo/profile-picture-smiling-young-african-260nw-1873784920.jpg' },
+  { id: '3', title: 'Thomas Brown', content: 'Hi!', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCWG18FMyS1pXtWKr4Eb7_XLr0lScrVylmpg&s' },
+  { id: '4', title: 'Emily Davis', content: 'What!.', imageUrl: 'https://media.gettyimages.com/id/1317804578/photo/one-businesswoman-headshot-smiling-at-the-camera.jpg?s=612x612&w=gi&k=20&c=tFkDOWmEyqXQmUHNxkuR5TsmRVLi5VZXYm3mVsjee0E=' },
+  { id: '5', title: 'Sarah Lee', content: 'Heyy', imageUrl: 'https://media.gettyimages.com/id/1395128746/photo/portrait-of-confident-young-businesswomen-standing-in-a-convention-center-during-product-and.jpg?s=612x612&w=gi&k=20&c=b5YU_WVagGUrh6s7hiC3JJOTaofLduPHiowOsXq6ETQ=' },
+  { id: '6', title: 'Jane Smith', content: 'Who are you', imageUrl: 'https://cdn.pixabay.com/photo/2019/11/03/20/11/portrait-4599553_1280.jpg' },
+  { id: '7', title: 'David Johnson', content: 'Where are you?', imageUrl: 'https://www.shutterstock.com/image-photo/profile-picture-smiling-successful-young-260nw-2040223583.jpg' }, 
 ];
 
 function MessagesScreen({ navigation }) {

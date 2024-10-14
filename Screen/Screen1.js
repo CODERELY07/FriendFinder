@@ -1,9 +1,13 @@
-import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, Text, View, TouchableOpacity,Linking } from 'react-native';
 import React, { useState } from 'react';
 import externalStyles from "../style/externalStyle";
 
-export default function Screen1({ navigation ,route}) {
+export default function Screen1({ navigation}) {
   const [currentPage, setCurrentPage] = useState(0);
+
+  const Link = () => {
+    Linking.openURL('http://www.freepik.com');
+  };
 
   const renderIndicators = () => {
     return [0, 1, 2].map((index) => (
@@ -26,6 +30,12 @@ export default function Screen1({ navigation ,route}) {
       <Text style={externalStyles.title}>Welcome{"\n"}FriendFinder</Text>
       <View style={externalStyles.imageContainer}>
         <Image style={externalStyles.img} source={require('./../assets/images/first.jpg')} />
+        <Text style={[styles.text, externalStyles.link]}>
+          Designed by{' '}
+          <Text style={styles.link} onPress={Link}>
+            Freepik
+          </Text>
+        </Text>
       </View>
       <Text style={[externalStyles.description, externalStyles.big]}>
         <Text style={externalStyles.highlight}>Experience </Text>

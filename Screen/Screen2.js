@@ -12,6 +12,10 @@ import externalStyles from "../style/externalStyle";
 export default function Screen2({ navigation, route }) {
   const { currentPage } = route.params; 
 
+  const Link = () => {
+    Linking.openURL('http://www.freepik.com');
+  };
+
   const handleContinue = () => {
     navigation.navigate('Screen3', { currentPage: currentPage + 1 }); 
   };
@@ -41,6 +45,12 @@ export default function Screen2({ navigation, route }) {
         <Text style={externalStyles.title}>Why Connect?</Text>
         <View style={externalStyles.imageContainer}>
           <Image style={externalStyles.img} source={require('./../assets/images/second.jpg')} />
+          <Text style={[styles.text, externalStyles.link]}>
+          Designed by{' '}
+          <Text style={styles.link} onPress={Link}>
+            Freepik
+          </Text>
+        </Text>
         </View>
         <Text style={[externalStyles.description, externalStyles.para]}>
           Broaden your social circle! Whether you're seeking a workout partner or someone to explore the city with, FriendFinder makes it easy to see where others are and connect with your tribe nearby.

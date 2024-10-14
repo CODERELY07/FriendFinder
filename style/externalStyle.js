@@ -94,6 +94,10 @@ const externalStyles = StyleSheet.create({
     width: 230,
     marginRight: 10,
   },
+  link:{
+    top:160,
+    position:'absolute',
+  }
 });
 
 export default externalStyles;
