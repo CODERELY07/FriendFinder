@@ -13,6 +13,7 @@ import ProfileStackScreen from "./Screen/ProfileStackScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+
 function Main() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
