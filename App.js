@@ -10,6 +10,8 @@ import Screen3 from "./Screen/Screen3";
 import HomeStackScreen from "./Screen/HomeStackScreen";
 import MessagesStackScreen from "./Screen/MessageStacksScreen";
 import ProfileStackScreen from "./Screen/ProfileStackScreen";
+import SignupScreen from "./Screen/SignupScreen";
+import SigninScreen from "./Screen/SigninScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -72,6 +74,17 @@ export default function App() {
           options={{ headerShown: false }}
           component={Main}
         />
+        <Stack.Screen 
+          name="Signup" 
+          options={{ headerShown: false }} 
+          component={SignupScreen} 
+        />
+        <Stack.Screen 
+          name="Signin" 
+          options={{ headerShown: false }} 
+          component={SigninScreen} 
+        />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
