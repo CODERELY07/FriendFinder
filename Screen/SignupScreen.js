@@ -56,23 +56,17 @@ const SignupScreen = ({ navigation }) => {
     return regex.test(email);
   };
 
-  const handleSignup = async () => {
+  const signupValidation = async () => {
     let valid = true;
 
-
-    
-    // Reset errors
     setUsernameError('');
     setEmailError('');
     setPasswordError('');
 
-    // Validate username
     if (!username) {
       setUsernameError('Username is required');
       valid = false;
     }
-
-    // Validate email
     if (!email) {
       setEmailError('Email is required');
       valid = false;
@@ -93,7 +87,6 @@ const SignupScreen = ({ navigation }) => {
       try{
         if (result) {
             Alert.alert('Signup Successful');
-            // Navigate to another screen (e.g., login or home screen)
             navigation.navigate('Signin');
           } 
       }catch(err){
@@ -109,7 +102,7 @@ const SignupScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.header}>Signup</Text>
 
-      {/* Username Input */}
+     
       <View style={styles.inputContainer}>
         <Ionicons name="person" size={20} color="#00A8E8" style={styles.icon} />
         <TextInput
@@ -121,7 +114,7 @@ const SignupScreen = ({ navigation }) => {
       </View>
       {usernameError ? <Text style={styles.errorText}>{usernameError}</Text> : null}
 
-      {/* Email Input */}
+
       <View style={styles.inputContainer}>
         <Ionicons name="mail" size={20} color="#00A8E8" style={styles.icon} />
         <TextInput
@@ -134,7 +127,7 @@ const SignupScreen = ({ navigation }) => {
       </View>
       {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
-      {/* Password Input */}
+ 
       <View style={styles.inputContainer}>
         <Ionicons name="lock-closed" size={20} color="#00A8E8" style={styles.icon} />
         <TextInput
@@ -147,12 +140,12 @@ const SignupScreen = ({ navigation }) => {
       </View>
       {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
 
-      {/* Sign Up Button */}
-      <TouchableOpacity style={styles.button} onPress={handleSignup}>
+     
+      <TouchableOpacity style={styles.button} onPress={signupValidation}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
 
-      {/* Switch to Sign In */}
+
       <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
         <Text style={styles.switchText}>Already have an account? Sign In</Text>
       </TouchableOpacity>

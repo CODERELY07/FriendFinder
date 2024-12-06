@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity,StyleSheet, Alert } from 'react-native';
 import { Ionicons } from 'react-native-vector-icons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SQLite from 'expo-sqlite'; 
 
 const initDB = async() =>{
@@ -22,6 +23,7 @@ const initDB = async() =>{
 }
 initDB();
 
+
 const login = async (email, password, navigation) => {
     console.log('Login attempt');
   
@@ -30,11 +32,13 @@ const login = async (email, password, navigation) => {
       
       // Query to find the user with the provided email
       const user = await db.getAllAsync('SELECT * FROM user WHERE email = ?', [email]);
+      
       if (user.length === 0) {
         Alert.alert("Error: No user found with this email.");
         return;
       }
       if (user[0].Password === password) {
+        await AsyncStorage.setItem("userEmail", email);
         console.log('Login successful');
         navigation.navigate('Main');
       } else {
@@ -51,7 +55,7 @@ const SigninScreen = ({ navigation }) => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
-  const handleSignin = () => {
+  const signinValidation = () => {
     let valid = true;
 
     if (!email) {
@@ -101,7 +105,7 @@ const SigninScreen = ({ navigation }) => {
       </View>
       {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
 
-      <TouchableOpacity style={styles.button} onPress={handleSignin}>
+      <TouchableOpacity style={styles.button} onPress={signinValidation}>
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
 

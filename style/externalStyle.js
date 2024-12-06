@@ -77,7 +77,8 @@ const externalStyles = StyleSheet.create({
   headerText: {
     fontWeight: "bold",
     fontSize: 18,
-    marginLeft: 10,
+    marginTop: 10,
+    marginBottom:10
   },
   subHeaderText: {
     color: "#717070",

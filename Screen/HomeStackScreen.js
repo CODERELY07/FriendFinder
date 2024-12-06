@@ -1,134 +1,194 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   View,
-  Image,
   SafeAreaView,
   StyleSheet,
+  Button,
+  ScrollView,
+  TextInput,
   FlatList,
 } from "react-native";
+import Feed from '../components/Feed';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import externalStyles from "../style/externalStyle";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AddLocationScreen from "./AddLocationScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SQLite from 'expo-sqlite';
+
+
+const initDB = async () => {
+  console.log('Init Db');
+  try {
+    // Open the database
+    const db = await SQLite.openDatabaseAsync('friendfinder');
+    
+    // Using `execAsync` to execute multiple queries at once
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS user (
+        UserID INTEGER PRIMARY KEY AUTOINCREMENT,
+        Username TEXT NOT NULL,
+        Email TEXT NOT NULL,
+        Password TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS post (
+        PostID INTEGER PRIMARY KEY AUTOINCREMENT,
+        UserID INTEGER NOT NULL,
+        Content TEXT NOT NULL,
+        FOREIGN KEY (UserID) REFERENCES user(UserID)
+      );
+    `);
+
+    console.log('Database initialized successfully');
+  } catch (e) {
+    console.log('Error: ', e);
+  }
+};
+initDB();
+const fetchUserIDFromDb = async (email) => {
+  try {
+    const db = await SQLite.openDatabaseAsync('friendfinder');
+    const result = await db.getFirstAsync('SELECT UserID FROM user WHERE email = ?', email);
+    
+    if (result) {
+      return result.UserID;  
+    } else {
+      console.log("No user found with this email.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching UserID:", error);
+    return null;
+  }
+};
+
+const fetchUsernameFromDb = async (email) => {
+  try {
+    const db = await SQLite.openDatabaseAsync('friendfinder');
+    const result = await db.getFirstAsync('SELECT Username FROM user WHERE email = ?', email);
+    
+    if (result) {
+      return result.Username;  
+    } else {
+      console.log("No user found with this email.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching username:", error);
+    return null;
+  }
+};
+
+const selectPost = async () => {
+  console.log('Select Post');
+  
+  try {
+    const db = await SQLite.openDatabaseAsync('friendfinder');
+    const allRows = await db.getAllAsync(`
+      SELECT post.Content, post.UserID 
+      FROM post 
+      JOIN user ON post.UserID = user.UserID
+    `);
+    
+    for (const row of allRows) {
+      console.log(`Post Content: ${row.Content}, UserID: ${row.UserID}`);
+    }
+  } catch (e) {
+    console.log("Error: ", e);
+  }
+};
+const insertPost = async (userID, content) => {
+  console.log('Insert Post');
+  if (content.trim() === '') {
+    console.log('Content cannot be empty');
+    return;
+  }
+  try {
+    // Open the database
+    const db = await SQLite.openDatabaseAsync('friendfinder');
+    
+    // Assuming you want to insert a post for an existing user with UserID = 1
+
+    // Insert a new post into the post table using `runAsync` with parameter binding
+    const result = await db.runAsync('INSERT INTO post (UserID, Content) VALUES (?, ?)', userID, content);
+
+    // Log the result of the insert
+    console.log('Inserted Post ID:', result.lastInsertRowId);
+    console.log('Changes:', result.changes);
+
+    // Optionally, you can close the database connection
+    await db.closeAsync();
+    
+  } catch (e) {
+    console.log('Error: ', e);
+  }
+};
 
 function HomeScreen() {
-  const navigation = useNavigation();
-  const friendsData = [
-    {
-      id: "1",
-      uri: "https://www.shutterstock.com/image-photo/profile-picture-smiling-young-african-260nw-1873784920.jpg",
-    },
-    {
-      id: "2",
-      uri: "https://media.gettyimages.com/id/1317804578/photo/one-businesswoman-headshot-smiling-at-the-camera.jpg?s=612x612&w=gi&k=20&c=tFkDOWmEyqXQmUHNxkuR5TsmRVLi5VZXYm3mVsjee0E=",
-    },
-    {
-      id: "3",
-      uri: "https://cdn.pixabay.com/photo/2019/11/03/20/11/portrait-4599553_1280.jpg",
-    },
-    {
-      id: "4",
-      uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCWG18FMyS1pXtWKr4Eb7_XLr0lScrVylmpg&s",
-    },
-    {
-      id: "5",
-      uri: "https://www.shutterstock.com/image-photo/profile-picture-smiling-successful-young-260nw-2040223583.jpg",
-    },
-  ];
+  const [username, setUsername] = useState(null);
+  const [userID, setUserID] = useState(null);
+  const [content, setContent] = useState('');
 
-  const nearbyFriendsData = [
-    {
-      id: "1",
-      name: "Emily Davis",
-      uri: "https://media.gettyimages.com/id/1317804578/photo/one-businesswoman-headshot-smiling-at-the-camera.jpg?s=612x612&w=gi&k=20&c=tFkDOWmEyqXQmUHNxkuR5TsmRVLi5VZXYm3mVsjee0E=",
-      mapUri: "https://i.sstatic.net/HILmr.png",
-    },
-    {
-      id: "2",
-      name: "Jane Smith",
-      uri: "https://cdn.pixabay.com/photo/2019/11/03/20/11/portrait-4599553_1280.jpg",
-      mapUri: "https://i.sstatic.net/HILmr.png",
-    },
-  ];
+  useEffect(() => {
+    let isMounted = true;
+    const getEmail = async () => {
+      try {
+        const email = await AsyncStorage.getItem("userEmail");
+        if (email) {
+          // Fetch username from the database using the email
+          const fetchedUsername = await fetchUsernameFromDb(email);
+          const fetchedUserId  = await fetchUserIDFromDb(email);
+          setUsername(fetchedUsername);
+          setUserID(fetchedUserId)
+        } else {
+          console.log("No email found.");
+        }
+      } catch (error) {
+        console.error("Error retrieving email or fetching username:", error);
+      }
+    };
 
-  const renderFriend = ({ item }) => (
-    <Image source={{ uri: item.uri }} style={styles.friendImage} />
-  );
+    getEmail();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-  const renderNearbyFriend = ({ item }) => (
-    <View style={externalStyles.locationBox}>
-      <View style={styles.friendInfo}>
-        <Image source={{ uri: item.uri }} style={styles.smallFriendImage} />
-        <Text style={styles.friendName}>
-          {item.name}
-          {"\n"}
-          <Text style={styles.friendStatus}>Join the fun!</Text>
-        </Text>
-      </View>
-      <Image source={{ uri: item.mapUri }} style={styles.mapImage} />
-    </View>
-  );
-
+  
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.line}>
+       <Text style={styles.logoText}>FriendFinder</Text>
+      </View>
       <View style={externalStyles.header}>
-        <Image
-          source={{
-            uri: "https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg",
-          }}
-          style={externalStyles.profileImage}
-        />
         <Text style={externalStyles.headerText}>
-          John Doe {"\n"}
+          {username} {"\n"}
           <Text style={externalStyles.subHeaderText}>Join the fun!</Text>
         </Text>
       </View>
-
-      <View style={styles.quoteBox}>
-        <Text style={styles.quoteText}>
-          "The best adventures are the ones shared—let's meet where the map
-          leads us!"
-        </Text>
+      <View>
+        <TextInput
+           placeholder="Enter post content"
+           value={content} 
+           onChangeText={setContent}  
+        />
       </View>
-
-      <Text style={styles.sectionTitle}>Message your Friends</Text>
-      <FlatList
-        data={friendsData}
-        renderItem={renderFriend}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.friendList}
-      />
-
-      <Text style={styles.sectionTitle}>Location of Friends Nearby!</Text>
-      <FlatList
-        data={nearbyFriendsData}
-        renderItem={renderNearbyFriend}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.nearbyList}
-      />
-      <TouchableOpacity
-        style={{
-          backgroundColor: "#fff",
-          height: 50,
-          width: 50,
-          borderRadius: 25,
-          justifyContent: "center",
-          alignContent: "center",
-          position: "absolute",
-          bottom: 15,
-          right: 15,
-        }}
-        onPress={() => navigation.navigate("AddLocation")}
-      >
-        <AntDesign name="pluscircle" size={50} color="#00A8E8" />
-      </TouchableOpacity>
+      <View style={styles.btn}>
+        <Button
+          title="INSERT post"
+          onPress={() => insertPost(userID,content)}
+        /> 
+      </View>
+      <View style={styles.btn}>
+        <Button
+          title="Select post"
+          onPress={() => selectPost()}
+        /> 
+      </View>
+      {/* <Feed /> */}
     </SafeAreaView>
   );
 }
@@ -184,11 +244,12 @@ const styles = StyleSheet.create({
   friendList: {
     marginTop: 15,
   },
-  friendImage: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+  friendItem: {
     marginHorizontal: 5,
+    padding: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 10,
+    alignItems: "center",
   },
   friendInfo: {
     flexDirection: "row",
@@ -196,11 +257,6 @@ const styles = StyleSheet.create({
     borderColor: "rgba(0,0,0,0.1)",
     borderBottomWidth: 1,
     padding: 10,
-  },
-  smallFriendImage: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
   },
   friendName: {
     fontWeight: "bold",
@@ -212,13 +268,15 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     fontSize: 12,
   },
-  mapImage: {
-    width: "100%",
-    height: 200,
-    borderBottomLeftRadius: 3,
-    borderBottomRightRadius: 3,
-  },
   nearbyList: {
     marginTop: 15,
   },
+  logoText: {
+    fontFamily: 'Arial', // Facebook uses a clean sans-serif font like Arial
+    fontSize: 24, // Adjust the font size based on your design
+    color: '#00A8E8', // Facebook blue color
+    fontWeight: 'bold', // Bold font weight
+    letterSpacing: 0.5, // Slight letter spacing
+  },
+
 });
