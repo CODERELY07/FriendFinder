@@ -9,7 +9,7 @@ import {
   TextInput,
   FlatList,
 } from "react-native";
-import Feed from '../components/Feed';
+import Feed from "../components/Feed";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import externalStyles from "../style/externalStyle";
@@ -17,15 +17,15 @@ import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AddLocationScreen from "./AddLocationScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SQLite from 'expo-sqlite';
-
+import * as SQLite from "expo-sqlite";
+import EvilIcons from '@expo/vector-icons/EvilIcons';
 
 const initDB = async () => {
-  console.log('Init Db');
+  console.log("Init Db");
   try {
     // Open the database
-    const db = await SQLite.openDatabaseAsync('friendfinder');
-    
+    const db = await SQLite.openDatabaseAsync("friendfinder");
+
     // Using `execAsync` to execute multiple queries at once
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS user (
@@ -38,23 +38,27 @@ const initDB = async () => {
         PostID INTEGER PRIMARY KEY AUTOINCREMENT,
         UserID INTEGER NOT NULL,
         Content TEXT NOT NULL,
+        Comment TEXT NOT NULL,
         FOREIGN KEY (UserID) REFERENCES user(UserID)
       );
     `);
-
-    console.log('Database initialized successfully');
+    // await db.runAsync(`ALTER TABLE post ADD COLUMN Comment TEXT`);
+    console.log("Database initialized successfully");
   } catch (e) {
-    console.log('Error: ', e);
+    console.log("Error: ", e);
   }
 };
 initDB();
 const fetchUserIDFromDb = async (email) => {
   try {
-    const db = await SQLite.openDatabaseAsync('friendfinder');
-    const result = await db.getFirstAsync('SELECT UserID FROM user WHERE email = ?', email);
-    
+    const db = await SQLite.openDatabaseAsync("friendfinder");
+    const result = await db.getFirstAsync(
+      "SELECT UserID FROM user WHERE email = ?",
+      email
+    );
+
     if (result) {
-      return result.UserID;  
+      return result.UserID;
     } else {
       console.log("No user found with this email.");
       return null;
@@ -67,11 +71,14 @@ const fetchUserIDFromDb = async (email) => {
 
 const fetchUsernameFromDb = async (email) => {
   try {
-    const db = await SQLite.openDatabaseAsync('friendfinder');
-    const result = await db.getFirstAsync('SELECT Username FROM user WHERE email = ?', email);
-    
+    const db = await SQLite.openDatabaseAsync("friendfinder");
+    const result = await db.getFirstAsync(
+      "SELECT Username FROM user WHERE email = ?",
+      email
+    );
+
     if (result) {
-      return result.Username;  
+      return result.Username;
     } else {
       console.log("No user found with this email.");
       return null;
@@ -82,55 +89,86 @@ const fetchUsernameFromDb = async (email) => {
   }
 };
 
-const selectPost = async () => {
-  console.log('Select Post');
+const usePosts = () => {
+  const [posts, setPosts] = useState([]);
+  const [refreshCount, setRefreshCount] = useState(0); // A counter to trigger re-fetch
+
+  const selectPost = async () => {
+    console.log("Select Post");
+    try {
+      const db = await SQLite.openDatabaseAsync("friendfinder");
+      const allRows = await db.getAllAsync(`
+        SELECT post.PostID, post.Content, post.Comment, user.Username, user.UserID
+        FROM post 
+        JOIN user ON post.UserID = user.UserID
+      `);
   
-  try {
-    const db = await SQLite.openDatabaseAsync('friendfinder');
-    const allRows = await db.getAllAsync(`
-      SELECT post.Content, post.UserID 
-      FROM post 
-      JOIN user ON post.UserID = user.UserID
-    `);
-    
-    for (const row of allRows) {
-      console.log(`Post Content: ${row.Content}, UserID: ${row.UserID}`);
+      console.log("Fetched Posts: ", allRows);  
+      setPosts(allRows); 
+    } catch (e) {
+      console.log("Error: ", e);
     }
-  } catch (e) {
-    console.log("Error: ", e);
-  }
+  };
+  
+
+  // Use useEffect to re-fetch posts whenever refreshCount changes
+  useEffect(() => {
+    selectPost(); // Fetch posts on mount and whenever refreshCount changes
+  }, [refreshCount]);
+
+  // This will allow manual refreshing
+  const refresh = () => {
+    setRefreshCount(prevCount => prevCount + 1);
+  };
+
+  return { posts, refresh };
 };
+
+
 const insertPost = async (userID, content) => {
-  console.log('Insert Post');
-  if (content.trim() === '') {
-    console.log('Content cannot be empty');
+  console.log("Insert Post");
+  if (content.trim() === "") {
+    console.log("Content cannot be empty");
     return;
   }
   try {
     // Open the database
-    const db = await SQLite.openDatabaseAsync('friendfinder');
-    
-    // Assuming you want to insert a post for an existing user with UserID = 1
+    const db = await SQLite.openDatabaseAsync("friendfinder");
 
-    // Insert a new post into the post table using `runAsync` with parameter binding
-    const result = await db.runAsync('INSERT INTO post (UserID, Content) VALUES (?, ?)', userID, content);
+    const result = await db.runAsync(
+      "INSERT INTO post (UserID, Content) VALUES (?, ?)",
+      userID,
+      content
+    );
 
     // Log the result of the insert
-    console.log('Inserted Post ID:', result.lastInsertRowId);
-    console.log('Changes:', result.changes);
+    console.log("Inserted Post ID:", result.lastInsertRowId);
+    console.log("Changes:", result.changes);
 
     // Optionally, you can close the database connection
     await db.closeAsync();
-    
   } catch (e) {
-    console.log('Error: ', e);
+    console.log("Error: ", e);
   }
 };
+const deletePost = async(postID) =>{
+  console.log('Delete Post');
+  
+  try{
+    const db = await SQLite.openDatabaseAsync('friendfinder');
+    await db.runAsync('DELETE FROM post WHERE PostID = ?', [postID]);
+  }catch(e){
+    console.log("Error: ", e);
+  }
 
+}
 function HomeScreen() {
   const [username, setUsername] = useState(null);
   const [userID, setUserID] = useState(null);
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
+
+  // Use the posts hook to get posts and the refresh function
+  const { posts, refresh } = usePosts();
 
   useEffect(() => {
     let isMounted = true;
@@ -138,11 +176,11 @@ function HomeScreen() {
       try {
         const email = await AsyncStorage.getItem("userEmail");
         if (email) {
-          // Fetch username from the database using the email
+          // Fetch username and userID
           const fetchedUsername = await fetchUsernameFromDb(email);
-          const fetchedUserId  = await fetchUserIDFromDb(email);
+          const fetchedUserId = await fetchUserIDFromDb(email);
           setUsername(fetchedUsername);
-          setUserID(fetchedUserId)
+          setUserID(fetchedUserId);
         } else {
           console.log("No email found.");
         }
@@ -157,11 +195,28 @@ function HomeScreen() {
     };
   }, []);
 
+  const handleInsertPost = async () => {
+    if (content.trim() === "") {
+      console.log("Content cannot be empty");
+      return;
+    }
+    // Insert the post and refresh the post list
+    await insertPost(userID, content);
+    setContent(""); 
+    refresh(); 
+  };
   
+  const handleDeletePost = async (postID) => {
+    await deletePost(postID);
+    setContent(""); 
+    refresh(); 
+  };
+  console.log("Logged-in user ID: ", userID);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.line}>
-       <Text style={styles.logoText}>FriendFinder</Text>
+        <Text style={styles.logoText}>FriendFinder</Text>
       </View>
       <View style={externalStyles.header}>
         <Text style={externalStyles.headerText}>
@@ -169,29 +224,68 @@ function HomeScreen() {
           <Text style={externalStyles.subHeaderText}>Join the fun!</Text>
         </Text>
       </View>
-      <View>
-        <TextInput
-           placeholder="Enter post content"
-           value={content} 
-           onChangeText={setContent}  
-        />
+      <View style={styles.box}>
+        <View>
+          <TextInput
+            style={styles.postInput}
+            placeholder="Enter post content"
+            value={content}
+            onChangeText={setContent}
+          />
+        </View>
+        <View>
+          <TouchableOpacity
+            style={styles.postButton}
+            onPress={handleInsertPost}
+          >
+            <Text style={{fontSize: 14,
+    fontWeight: 'bold',color:'#fff',fontWeight:'bold'}}>Post</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.btn}>
-        <Button
-          title="INSERT post"
-          onPress={() => insertPost(userID,content)}
-        /> 
-      </View>
-      <View style={styles.btn}>
-        <Button
-          title="Select post"
-          onPress={() => selectPost()}
-        /> 
-      </View>
-      {/* <Feed /> */}
+  
+      <FlatList
+        showsVerticalScrollIndicator={false}
+        data={posts}
+        keyExtractor={(item) => item.PostID.toString()} // Use PostID as key
+        renderItem={({ item }) => (
+          <View style={[styles.box,{ paddingVertical: 10, marginLeft:1,width: '99%',flexDirection:'column',alignItems:'left'}]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%',alignItems:'center',marginBottom:5}}>
+              <Text style={{ fontWeight: "bold" }}>{item.Username}</Text>
+              {console.log("Post Data: ", item)}
+              {userID === item.UserID && (
+              <TouchableOpacity style={{ marginLeft: 'auto'}} onPress={() => handleDeletePost(item.PostID)}>
+                <AntDesign name="ellipsis1" size={24} color="black" />
+              </TouchableOpacity>
+            )}
+            </View>
+            <View>
+              <Text>{item.Content}</Text>
+            </View>
+
+            
+            <View style={{ borderTopColor: '#B0B0B0', marginTop: 10, borderTopWidth: 1 }}>
+              <Text>{item.Comment}</Text>
+            </View>
+
+            <View style={styles.actionContainer}>
+              <TouchableOpacity  style={styles.postIcon}>
+                <AntDesign name="like2" size={18} color="black" />
+                <Text>Like</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.postIcon}>
+                <EvilIcons name="comment" size={24} color="black" />
+                <Text>Comment</Text>
+              </TouchableOpacity>
+            </View>
+            </View>
+              )}
+            />
     </SafeAreaView>
   );
 }
+
 
 const HomeStack = createNativeStackNavigator();
 
@@ -217,7 +311,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     paddingTop: 50,
-    backgroundColor: "#fff",
+    height:'100vh',
+    backgroundColor: "#F4F6FF",
   },
   quoteBox: {
     shadowColor: "#171717",
@@ -272,11 +367,63 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   logoText: {
-    fontFamily: 'Arial', // Facebook uses a clean sans-serif font like Arial
+    fontFamily: "Arial", // Facebook uses a clean sans-serif font like Arial
     fontSize: 24, // Adjust the font size based on your design
-    color: '#00A8E8', // Facebook blue color
-    fontWeight: 'bold', // Bold font weight
+    color: "#00A8E8", // Facebook blue color
+    fontWeight: "bold", // Bold font weight
     letterSpacing: 0.5, // Slight letter spacing
   },
-
+  postInput:{
+    backgroundColor: '#F4F6FF',
+    height:50,
+    padding:15,
+    width:245,
+    borderRadius:25,
+  },
+  postButton:{
+    borderRadius: 50,
+    backgroundColor: '#00A8E8',
+    height:50,
+    width:50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+  },
+  box:{
+    marginBottom: 10,
+    padding: 10,
+    paddingVertical:20,
+    width:'100%',
+    backgroundColor: '#F4F6FF',
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent:'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    shadowColor: '#171717',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.7,
+    backgroundColor: '#fff',
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  actionContainer: {
+    flexDirection: 'row',
+    marginTop:-10,
+    alignItems:'center',
+    justifyContent: 'space-around',
+  },
+  postIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  liked: {
+    color: 'blue', // Change to blue or any color when liked
+    
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
 });
