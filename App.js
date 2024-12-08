@@ -18,7 +18,14 @@ const Tab = createBottomTabNavigator();
 
 function Main() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator screenOptions={{
+    headerShown: false,
+    tabBarActiveTintColor: '#00A8E8',
+    tabBarInactiveTintColor: 'gray', 
+    tabBarStyle: {
+      backgroundColor: '#F4F6FF',  
+    },
+  }}>
       <Tab.Screen
         name="Home"
         component={HomeStackScreen}

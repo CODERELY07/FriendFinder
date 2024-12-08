@@ -1,9 +1,10 @@
 // SigninScreen.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity,StyleSheet, Alert } from 'react-native';
 import { Ionicons } from 'react-native-vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SQLite from 'expo-sqlite'; 
+
 
 const initDB = async() =>{
     console.log('Init Db');
@@ -39,6 +40,8 @@ const login = async (email, password, navigation) => {
       }
       if (user[0].Password === password) {
         await AsyncStorage.setItem("userEmail", email);
+        await AsyncStorage.setItem("username", user[0].Username);
+        await AsyncStorage.setItem("userID", user[0].UserID.toString());
         console.log('Login successful');
         navigation.navigate('Main');
       } else {
@@ -54,6 +57,7 @@ const SigninScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+
 
   const signinValidation = () => {
     let valid = true;
