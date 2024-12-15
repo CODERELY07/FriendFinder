@@ -108,7 +108,7 @@ function MessagesScreen({ navigation }) {
 
   const renderItem = ({ item }) => {
     const isUserMessage = item.username === username;
-
+  
     return (
       <View>
         {!isUserMessage && (
@@ -128,9 +128,17 @@ function MessagesScreen({ navigation }) {
           >
             {item.content}
           </Text>
-        
         </View>
-        <Text style={styles.timestamp}>{item.timestamp}</Text>
+  
+        {/* Timestamp aligned with message side */}
+        <Text
+          style={[
+            styles.timestamp,
+            isUserMessage ? styles.userTimestamp : styles.otherTimestamp,
+          ]}
+        >
+          {item.timestamp}
+        </Text>
       </View>
     );
   };
@@ -188,8 +196,7 @@ const styles = StyleSheet.create({
   },
   messageItem: {
     padding: 12,
-    marginVertical: 0,
-    marginBottom: 10,
+    marginVertical: 10,
     borderRadius: 10,
     maxWidth: "75%",
   },
@@ -202,7 +209,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#e0e0e0",
   },
   username: {
-    marginBottom: 4,
+    marginBottom: 0,
+    marginBottom:-8,
     fontSize: 12,
   },
   messageText: {
@@ -213,12 +221,6 @@ const styles = StyleSheet.create({
   },
   otherText: {
     color: "#000",
-  },
-  timestamp: {
-    fontSize: 10,
-    color: "#888",
-    marginTop: -5,
-    textAlign: "right", // Align to the right for user messages
   },
   inputContainer: {
     flexDirection: "row",
@@ -245,5 +247,17 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     justifyContent: "center",
     alignItems: "center",
+  },
+  timestamp: {
+    fontSize: 10,
+    color: "#888",
+    marginTop: -5,
+    marginBottom:12,
+  },
+  userTimestamp: {
+    textAlign: "right", // Right aligned for user messages
+  },
+  otherTimestamp: {
+    textAlign: "left", // Left aligned for other messages
   },
 });
