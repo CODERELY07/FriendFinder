@@ -162,7 +162,7 @@ const SigninScreen = ({ navigation }) => {
           setPassword("");
           setEmailError("");
           setPasswordError("");
-          navigation.navigate("Signup");
+          navigation.navigate("Screen1");
         }}
       >
         <Text style={styles.switchText}>Don't have an account? Sign Up</Text>

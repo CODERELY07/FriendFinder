@@ -53,7 +53,7 @@ export default function Screen2({ navigation, route }) {
         </Text>
         </View>
         <Text style={[externalStyles.description, externalStyles.para]}>
-          Broaden your social circle! Whether you're seeking a workout partner or someone to explore the city with, FriendFinder makes it easy to see where others are and connect with your tribe nearby.
+        Expand your global network! Explore different cultures with, FriendFinder connects you with people from around the world, allowing you to chat, learn, and share experiences with others across the globe.
         </Text>
         <TouchableOpacity style={externalStyles.button} onPress={handleContinue}>
           <Text style={externalStyles.buttonText}>Continue</Text>

@@ -21,12 +21,13 @@ import * as SQLite from "expo-sqlite";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import CommentsScreen from "./CommnetsScreen";
 
+
 // Database initialization
 const initDB = async () => {
   console.log("Init Db");
   try {
     const db = await SQLite.openDatabaseAsync("friendfinder"); // Ensure DB is opened
-
+    
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS user (
         UserID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -127,7 +128,7 @@ const usePosts = () => {
     try {
       const db = await SQLite.openDatabaseAsync("friendfinder");
       const allRows = await db.getAllAsync(`
-        SELECT post.PostID, post.Content, post.Comment, user.Username, user.UserID
+        SELECT post.PostID, post.Content,  user.Username, user.UserID
         FROM post
         JOIN user ON post.UserID = user.UserID
         WHERE user.email != ? 
@@ -323,16 +324,7 @@ const fetchLikesCount = async (postID) => {
     getUserID();
     fetchPosts();
   }, []);
-  useEffect(() => {
-    const checkUserSession = async () => {
-      const userEmail = await AsyncStorage.getItem("userEmail");
-      if (!userEmail) {
-        navigation.replace("Signin"); // Redirect to Signin if no user is logged in
-      }
-    };
 
-    checkUserSession();
-  }, []);
   const fetchPosts = async () => {
     try {
       const db = await SQLite.openDatabaseAsync("friendfinder");
@@ -376,9 +368,9 @@ const fetchLikesCount = async (postID) => {
   }, []);
   useEffect(() => {
     posts.forEach((post) => {
-      fetchLikesCount(post.PostID); // Fetch like count for each post
+      fetchLikesCount(post.PostID); 
     });
-  }, [posts]); // This effect runs whenever the posts change
+  }, [posts]);
   
   const handleInsertPost = async () => {
     if (content.trim() === "") {

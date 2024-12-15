@@ -227,12 +227,6 @@ function ProfileScreen({ navigation }) {
       <Text style={[externalStyles.title, styles.alignCenter]}>Profile</Text>
       <View style={[externalStyles.header, { justifyContent: "space-between" }]}>
         <View style={externalStyles.header}>
-          <Image
-            source={{
-              uri: "https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg",
-            }}
-            style={externalStyles.profileImage}
-          />
           <Text style={externalStyles.headerText}>
             {username} {"\n"}
             <Text
@@ -305,52 +299,63 @@ function ProfileScreen({ navigation }) {
       </Modal>
 
       {/* Display the logged-in user's posts */}
-      <FlatList
-        data={posts}
-        keyExtractor={(item) => item.PostID.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.box}>
-          <View style={styles.postHeader}>
-            <Text style={{ fontWeight: "bold" }}>{item.Username}</Text>
-            <View style={styles.iconContainer}>
-              <TouchableOpacity onPress={() => {
-                setPostIDToEdit(item.PostID);
-                setPostToEdit(item.Content);  // Set current post content for editing
-                setEditPostModalVisible(true);
-              }}>
-                <AntDesign name="edit" size={18} color="black" style={styles.icon} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => confirmDelete(item.PostID)}>
-                <AntDesign name="delete" size={18} color="black" style={styles.icon} />
-              </TouchableOpacity>
+      {posts.length === 0 ? (
+        <Text style={styles.noPostsText}>You have not posted yet.</Text>
+      ) : (
+        <FlatList
+          data={posts}
+          keyExtractor={(item) => item.PostID.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.box}>
+              <View style={styles.postHeader}>
+                <Text style={{ fontWeight: "bold" }}>{item.Username}</Text>
+                <View style={styles.iconContainer}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setPostIDToEdit(item.PostID);
+                      setPostToEdit(item.Content); // Set current post content for editing
+                      setEditPostModalVisible(true);
+                    }}
+                  >
+                    <AntDesign name="edit" size={18} color="black" style={styles.icon} />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => confirmDelete(item.PostID)}>
+                    <AntDesign name="delete" size={18} color="black" style={styles.icon} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <Text>{item.Content}</Text>
+
+              {/* Line separator */}
+              <View style={styles.separator} />
+
+              {/* Action Buttons (Like & Comment) */}
+              <View style={styles.actionContainer}>
+                <TouchableOpacity
+                  onPress={() => handleLike(item.PostID)}
+                  style={styles.actionButton}
+                >
+                  <AntDesign name="like2" size={18} color="black" />
+                  <Text style={styles.actionText}>
+                    {postLikes[item.PostID] ? postLikes[item.PostID] : 0} Likes
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleCommentPress(item.PostID)}
+                  style={styles.actionButton}
+                >
+                  <EvilIcons name="comment" size={24} color="black" />
+                  <Text style={styles.actionText}>Comment</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-          <Text>{item.Content}</Text>
-          
-          {/* Line separator */}
-          <View style={styles.separator} />
-        
-          {/* Action Buttons (Like & Comment) */}
-          <View style={styles.actionContainer}>
-            <TouchableOpacity onPress={() => handleLike(item.PostID)} style={styles.actionButton}>
-              <AntDesign name="like2" size={18} color="black" />
-              <Text style={styles.actionText}>
-                {postLikes[item.PostID] ? postLikes[item.PostID] : 0} Likes
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleCommentPress(item.PostID)} style={styles.actionButton}>
-              <EvilIcons name="comment" size={24} color="black" />
-              <Text style={styles.actionText}>Comment</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        )}
-        
-        
-      />
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }
+
 
 const ProfileStack = createNativeStackNavigator();
 
@@ -370,6 +375,12 @@ const styles = StyleSheet.create({
   alignCenter: {
     textAlign: "center",
     paddingTop: 40,
+  },
+  noPostsText: {
+    textAlign: "center",
+    marginTop: 80,
+    fontSize: 16,
+    color: "#888",
   },
   iconContainer: {
     flexDirection: 'row',

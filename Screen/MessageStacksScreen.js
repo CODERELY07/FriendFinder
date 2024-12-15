@@ -8,13 +8,11 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-  Modal,
-  ScrollView,
 } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from "react-native-vector-icons/Ionicons";
 import * as SQLite from "expo-sqlite";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Open SQLite database
 const db = SQLite.openDatabaseAsync("friendfinder");
@@ -24,23 +22,19 @@ function MessagesScreen({ navigation }) {
   const [messages, setMessages] = React.useState([]);
   const [message, setMessage] = React.useState("");
   const [username, setUsername] = React.useState(null);
-  const [replyToMessage, setReplyToMessage] = React.useState(null); // Track message being replied to
-  const [modalVisible, setModalVisible] = React.useState(false); // Track modal visibility
-  const [selectedMessage, setSelectedMessage] = React.useState(null); // Track the message being clicked
+  const flatListRef = React.useRef(null); // Ref for FlatList
 
   React.useEffect(() => {
     const initDB = async () => {
       try {
         const db = await SQLite.openDatabaseAsync("friendfinder");
-
+   
         await db.execAsync(`
-          PRAGMA journal_mode = WAL;
           CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL,
             content TEXT NOT NULL,
-            parent_id INTEGER DEFAULT NULL,  
-            FOREIGN KEY (parent_id) REFERENCES messages(id)  
+            timestamp TEXT NOT NULL
           );
         `);
       } catch (e) {
@@ -50,14 +44,14 @@ function MessagesScreen({ navigation }) {
 
     const getUsername = async () => {
       try {
-        const storedUsername = await AsyncStorage.getItem('username');
+        const storedUsername = await AsyncStorage.getItem("username");
         if (storedUsername) {
           setUsername(storedUsername);
         } else {
-          Alert.alert('No username found', 'Please log in again.');
+          Alert.alert("No username found", "Please log in again.");
         }
       } catch (e) {
-        console.log('Error fetching username', e);
+        console.log("Error fetching username", e);
       }
     };
 
@@ -70,25 +64,17 @@ function MessagesScreen({ navigation }) {
     try {
       const db = await SQLite.openDatabaseAsync("friendfinder");
 
-      // Fetch messages along with their replies
       const result = await db.getAllAsync(`
-        SELECT * FROM messages WHERE parent_id IS NULL ORDER BY id DESC
+        SELECT * FROM messages ORDER BY id ASC
       `);
 
-      const messagesWithReplies = await Promise.all(result.map(async (message) => {
-        const replies = await db.getAllAsync("SELECT * FROM messages WHERE parent_id = ?", [message.id]);
-        return { ...message, replies };
-      }));
-
-      setMessages(messagesWithReplies);
+      setMessages(result.map(msg => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp).toLocaleString(), // Format timestamp
+      })));
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
-  };
-
-  const handleReply = (message) => {
-    setSelectedMessage(message); 
-    setModalVisible(true); 
   };
 
   const sendMessage = async () => {
@@ -103,77 +89,61 @@ function MessagesScreen({ navigation }) {
 
     try {
       const db = await SQLite.openDatabaseAsync("friendfinder");
+      const timestamp = new Date().toISOString(); // Get current timestamp
 
-      // Insert reply or new message
-      if (selectedMessage) {
-        await db.runAsync("INSERT INTO messages (username, content, parent_id) VALUES (?, ?, ?)", [username, message, selectedMessage.id]);
-        setSelectedMessage(null); // Clear the reply context
-      } else {
-        await db.runAsync("INSERT INTO messages (username, content) VALUES (?, ?)", [username, message]);
-      }
+      await db.runAsync(
+        "INSERT INTO messages (username, content, timestamp) VALUES (?, ?, ?)",
+        [username, message, timestamp]
+      );
 
       setMessage(""); // Clear the input field
       fetchMessages(); // Refresh message list
+
+      // Scroll to the bottom
+      flatListRef.current?.scrollToEnd({ animated: true });
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
 
-  const deleteMessage = async (id) => {
-    try {
-      const db = await SQLite.openDatabaseAsync("friendfinder");
-      await db.runAsync("DELETE FROM messages WHERE id = ?", [id]);
-      fetchMessages();
-    } catch (error) {
-      console.error("Error deleting message:", error);
-    }
-  };
-
   const renderItem = ({ item }) => {
-    // Render replies as nested messages
-    const renderReplies = () => {
-      return (
-        <View style={styles.replyContainer}>
-          {item.replies && item.replies.map((reply) => (
-            <View key={reply.id} style={styles.replyMessage}>
-              <Text style={styles.replyUser}>{reply.username}:</Text>
-              <Text style={styles.replyContent}>{reply.content}</Text>
-            </View>
-          ))}
-        </View>
-      );
-    };
+    const isUserMessage = item.username === username;
 
     return (
-      <TouchableOpacity
-        style={styles.messageItem}
-        onPress={() => handleReply(item)} // Allow user to reply to this message
-      >
-        <View style={styles.messageContent}>
-          <View>
-            <Text style={styles.messageTitle}>{item.username}</Text>
-            <Text style={styles.messageText}>{item.content}</Text>
-          </View>
-          {item.username === username && (
-            <TouchableOpacity
-              onPress={() => deleteMessage(item.id)}
-              style={styles.deleteButton}
-            >
-              <Text style={styles.deleteText}>Delete</Text>
-            </TouchableOpacity>
-          )}
+      <View>
+        {!isUserMessage && (
+          <Text style={styles.username}>{item.username}</Text>
+        )}
+        <View
+          style={[
+            styles.messageItem,
+            isUserMessage ? styles.userMessage : styles.otherMessage,
+          ]}
+        >
+          <Text
+            style={[
+              styles.messageText,
+              isUserMessage ? styles.userText : styles.otherText,
+            ]}
+          >
+            {item.content}
+          </Text>
+        
         </View>
-       
-      </TouchableOpacity>
+        <Text style={styles.timestamp}>{item.timestamp}</Text>
+      </View>
     );
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
+        ref={flatListRef} // Attach FlatList ref
         data={messages}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.messagesList}
+        // Removed inverted prop to show oldest messages first
       />
 
       {/* Message Input Field (Below message list) */}
@@ -188,54 +158,9 @@ function MessagesScreen({ navigation }) {
           <Icon name="send" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
-
-      {/* Modal for Chat (for replying) */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <ScrollView style={styles.modalMessages}>
-              {selectedMessage && (
-                <View style={styles.messageContainer}>
-                  <Text style={styles.messageTitle}>{selectedMessage.username}</Text>
-                  <Text style={styles.messageContent}>{selectedMessage.content}</Text>
-                </View>
-              )}
-
-              {selectedMessage && selectedMessage.replies && selectedMessage.replies.map((reply) => (
-                <View key={reply.id} style={styles.replyMessage}>
-                  <Text style={styles.replyUser}>{reply.username}:</Text>
-                  <Text style={styles.replyContent}>{reply.content}</Text>
-                </View>
-              ))}
-            </ScrollView>
-
-            <TextInput
-              style={styles.input}
-              placeholder="Type your reply"
-              value={message}
-              onChangeText={setMessage}
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
-                <Icon name="send" size={24} color="#fff" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
-
-
 
 const MessagesStack = createNativeStackNavigator();
 
@@ -255,40 +180,45 @@ export default function MessagesStackScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: "#fff",
   },
-  messageItem: {
-    flexDirection: "row",
-    alignItems: "center",
+  messagesList: {
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.1)",
+    paddingBottom: 80,
   },
-  messageContent: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',  
-    width: '100%',
+  messageItem: {
+    padding: 12,
+    marginVertical: 0,
+    marginBottom: 10,
+    borderRadius: 10,
+    maxWidth: "75%",
   },
-  messageTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+  userMessage: {
+    alignSelf: "flex-end",
+    backgroundColor: "#007bff",
+  },
+  otherMessage: {
+    alignSelf: "flex-start",
+    backgroundColor: "#e0e0e0",
+  },
+  username: {
+    marginBottom: 4,
+    fontSize: 12,
   },
   messageText: {
     fontSize: 16,
-    marginTop: 8,
   },
-  deleteButton: {
-    backgroundColor: "#FF0000",
-    padding: 5,
-    marginTop: 5,
-    height:30,
-    borderRadius: 5,
-  },
-  deleteText: {
+  userText: {
     color: "#fff",
-    fontSize: 12,
+  },
+  otherText: {
+    color: "#000",
+  },
+  timestamp: {
+    fontSize: 10,
+    color: "#888",
+    marginTop: -5,
+    textAlign: "right", // Align to the right for user messages
   },
   inputContainer: {
     flexDirection: "row",
@@ -315,49 +245,5 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     justifyContent: "center",
     alignItems: "center",
-  },
-  replyContainer: {
-    paddingLeft: 20,
-    marginTop: 10,
-  },
-  replyMessage: {
-    marginBottom: 8,
-  },
-  replyUser: {
-    fontWeight: "bold",
-    fontSize: 14,
-  },
-  replyContent: {
-    fontSize: 14,
-    marginTop: 4,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    padding: 20,
-    width: "80%",
-    borderRadius: 10,
-  },
-  modalMessages: {
-    maxHeight: 300,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-  },
-  closeButton: {
-    backgroundColor: "#ccc",
-    padding: 10,
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: "#000",
-    fontSize: 16,
   },
 });
