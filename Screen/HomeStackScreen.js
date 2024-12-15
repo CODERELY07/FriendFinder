@@ -225,11 +225,37 @@ function HomeScreen() {
   const [userID, setUserID] = useState(null);
   const [content, setContent] = useState("");
   const [likeCounts, setLikeCounts] = useState({});
+  const [userLikes, setUserLikes] = useState({});
+  const [likedPosts, setLikedPosts] = useState({}); 
+
+  const fetchUserLikes = async () => {
+    try {
+      const db = await SQLite.openDatabaseAsync("friendfinder");
+      const userID = await AsyncStorage.getItem("userID");
+  
+      const allLikes = await db.getAllAsync(
+        "SELECT PostID FROM like WHERE UserID = ?",
+        [userID]
+      );
+  
+      const likesMap = {};
+      allLikes.forEach((like) => {
+        likesMap[like.PostID] = true;
+      });
+  
+      setUserLikes(likesMap);
+    } catch (e) {
+      console.log("Error fetching user likes:", e);
+    }
+  };
+  
+  useEffect(() => {
+    fetchUserLikes();
+  }, [posts]); 
   
   const handleLikePost = async (postID) => {
     try {
       const db = await SQLite.openDatabaseAsync("friendfinder");
-      
       const userID = await AsyncStorage.getItem("userID");
       if (!userID) {
         console.log("User not logged in");
@@ -241,11 +267,12 @@ function HomeScreen() {
         "SELECT * FROM like WHERE PostID = ? AND UserID = ?",
         [postID, userID]
       );
-      
+  
       if (existingLike) {
         // If the user already liked the post, remove the like (unlike)
         await db.runAsync("DELETE FROM like WHERE PostID = ? AND UserID = ?", [postID, userID]);
         console.log("Post unliked successfully");
+        setLikedPosts(prev => ({ ...prev, [postID]: false })); // Update the state to reflect unliked status
       } else {
         // If the user hasn't liked the post, add a like
         await db.runAsync(
@@ -253,6 +280,7 @@ function HomeScreen() {
           [postID, userID]
         );
         console.log("Post liked successfully");
+        setLikedPosts(prev => ({ ...prev, [postID]: true })); // Update the state to reflect liked status
       }
   
       refresh(); // Trigger a refresh to update the like count
@@ -260,6 +288,8 @@ function HomeScreen() {
       console.log("Error handling like/unlike:", e);
     }
   };
+  
+  
   
 const fetchLikesCount = async (postID) => {
   try {
@@ -404,46 +434,52 @@ const fetchLikesCount = async (postID) => {
         </View>
       </View>
       <FlatList
-        showsVerticalScrollIndicator={false}
-        data={posts}
-        keyExtractor={(item) => item.PostID.toString()}
-        renderItem={({ item }) => (
-          <View style={[styles.box, { paddingVertical: 10, marginLeft: 1, width: '99%', flexDirection: 'column', alignItems: 'left' }]}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: 5 }}>
-              <Text style={{ fontWeight: "bold" }}>{item.Username}</Text>
-              {userID === item.UserID && (
-                <TouchableOpacity style={{ marginLeft: 'auto'}} onPress={() => handleDeletePost(item.PostID)}>
-                  <AntDesign name="ellipsis1" size={24} color="black" />
-                </TouchableOpacity>
-              )}
-            </View>
-            <View>
-              <Text>{item.Content}</Text> 
-            </View>
-
-            <View style={{ borderTopColor: '#B0B0B0', marginTop: 10, borderTopWidth: 1 }}>
-              <Text>{item.Comment}</Text> 
-            </View>
-
-            <View style={styles.actionContainer}>
-              <TouchableOpacity
-                style={styles.postIcon}
-                onPress={() => handleLikePost(item.PostID)} 
-              >
-                <AntDesign name="like2" size={18} color="black" />
-                <Text>{likeCounts[item.PostID] || 0}</Text> 
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.postIcon}
-                onPress={() => handleCommentPress(item.PostID)}
-              >
-                <EvilIcons name="comment" size={24} color="black" />
-                <Text>Comment</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+    showsVerticalScrollIndicator={false}
+    data={posts}
+  keyExtractor={(item) => item.PostID.toString()}
+  renderItem={({ item }) => (
+    <View style={[styles.box, { paddingVertical: 10, marginLeft: 1, width: '99%', flexDirection: 'column', alignItems: 'left' }]}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: 5 }}>
+        <Text style={{ fontWeight: "bold" }}>{item.Username}</Text>
+        {userID === item.UserID && (
+          <TouchableOpacity style={{ marginLeft: 'auto'}} onPress={() => handleDeletePost(item.PostID)}>
+            <AntDesign name="ellipsis1" size={24} color="black" />
+          </TouchableOpacity>
         )}
-      />
+      </View>
+      <View>
+        <Text>{item.Content}</Text> 
+      </View>
+
+      <View style={{ borderTopColor: '#B0B0B0', marginTop: 10, borderTopWidth: 1,marginTop:10 }}>
+        <Text>{item.Comment}</Text> 
+      </View>
+      {likedPosts[item.PostID] && (
+        <Text style={{ color: 'green', fontSize: 12, marginBottom: 15,marginTop:-12 }}>You like this post</Text>
+      )}
+      <View style={styles.actionContainer}>
+        <TouchableOpacity
+          style={styles.postIcon}
+          onPress={() => handleLikePost(item.PostID)} 
+        >
+          <AntDesign name="like2" size={18} color="black" />
+          <Text>{likeCounts[item.PostID] || 0}</Text> 
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.postIcon}
+          onPress={() => handleCommentPress(item.PostID)}
+        >
+          <EvilIcons name="comment" size={24} color="black" />
+          <Text>Comment</Text>
+        </TouchableOpacity>
+      </View>
+
+     
+    </View>
+  )}
+/>
+
+
     </SafeAreaView>
   );
 }
