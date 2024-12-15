@@ -58,9 +58,19 @@ function Main() {
 }
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = React.useState(null);
+  
+  React.useEffect(() => {
+    const checkLoginStatus = async () => {
+      const userEmail = await AsyncStorage.getItem("userEmail");
+      setIsLoggedIn(!!userEmail); 
+    };
+
+    checkLoginStatus();
+  }, []);
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+       <Stack.Navigator initialRouteName={isLoggedIn ? "Home" : "Signin"}>
         <Stack.Screen
           name="Screen1"
           options={{ headerShown: false }}

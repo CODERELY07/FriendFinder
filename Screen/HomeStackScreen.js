@@ -140,7 +140,6 @@ const usePosts = () => {
     }
   };
 
-  // Fetch email from AsyncStorage and trigger selectPost when it's available
   useEffect(() => {
     const getEmail = async () => {
       try {
@@ -294,7 +293,16 @@ const fetchLikesCount = async (postID) => {
     getUserID();
     fetchPosts();
   }, []);
+  useEffect(() => {
+    const checkUserSession = async () => {
+      const userEmail = await AsyncStorage.getItem("userEmail");
+      if (!userEmail) {
+        navigation.replace("Signin"); // Redirect to Signin if no user is logged in
+      }
+    };
 
+    checkUserSession();
+  }, []);
   const fetchPosts = async () => {
     try {
       const db = await SQLite.openDatabaseAsync("friendfinder");
@@ -410,27 +418,27 @@ const fetchLikesCount = async (postID) => {
               )}
             </View>
             <View>
-              <Text>{item.Content}</Text> {/* Ensure text is wrapped inside <Text> */}
+              <Text>{item.Content}</Text> 
             </View>
 
             <View style={{ borderTopColor: '#B0B0B0', marginTop: 10, borderTopWidth: 1 }}>
-              <Text>{item.Comment}</Text> {/* Ensure comment is wrapped inside <Text> */}
+              <Text>{item.Comment}</Text> 
             </View>
 
             <View style={styles.actionContainer}>
               <TouchableOpacity
                 style={styles.postIcon}
-                onPress={() => handleLikePost(item.PostID)} // Add the like functionality
+                onPress={() => handleLikePost(item.PostID)} 
               >
                 <AntDesign name="like2" size={18} color="black" />
-                <Text>{likeCounts[item.PostID] || 0}</Text> {/* Ensure 'Like' text is wrapped inside <Text> */}
+                <Text>{likeCounts[item.PostID] || 0}</Text> 
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.postIcon}
                 onPress={() => handleCommentPress(item.PostID)}
               >
                 <EvilIcons name="comment" size={24} color="black" />
-                <Text>Comment</Text> {/* Ensure 'Comment' text is wrapped inside <Text> */}
+                <Text>Comment</Text>
               </TouchableOpacity>
             </View>
           </View>

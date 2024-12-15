@@ -20,17 +20,16 @@ const initDB = async() =>{
       console.log("Error: ", e);
     }
 }
-const createAccount = async(username, email, password) =>{
+const createAccount = async(username, email, password,setEmailError) =>{
     console.log('Create Account');
   
     try{
     const db = await SQLite.openDatabaseAsync('friendfinder');
 
-
     const existingEmail  = await db.getAllAsync('SELECT Email FROM user WHERE Email = ?', [email]);
     if (existingEmail != "") {
-        Alert.alert("Email already exists");
-        return null;
+       setEmailError("Email already exists");
+        return ;
     }
       const result = await db.runAsync('INSERT INTO user (Username,Email, Password) VALUES (?, ?, ?)', [username, email, password]);
       console.log(result.lastInsertRowId, result.changes);
@@ -82,7 +81,7 @@ const SignupScreen = ({ navigation }) => {
     }
 
     if (valid) {
-      const result = await createAccount(username, email, password);
+      const result = await createAccount(username, email, password,setEmailError);
 
       try{
         if (result) {
