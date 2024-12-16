@@ -9,13 +9,11 @@ import {
   TextInput,
   FlatList,
 } from "react-native";
-import Feed from "../components/Feed";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import externalStyles from "../style/externalStyle";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import AddLocationScreen from "./AddLocationScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SQLite from "expo-sqlite";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
@@ -26,13 +24,13 @@ import CommentsScreen from "./CommnetsScreen";
 const initDB = async () => {
   console.log("Init Db");
   try {
-    const db = await SQLite.openDatabaseAsync("friendfinder"); // Ensure DB is opened
-    
+    const db = await SQLite.openDatabaseAsync("friendfinder"); 
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS user (
         UserID INTEGER PRIMARY KEY AUTOINCREMENT,
         Username TEXT NOT NULL,
         Email TEXT NOT NULL,
+        Profile TEXT,
         Password TEXT NOT NULL
       );
       CREATE TABLE IF NOT EXISTS post (
@@ -67,8 +65,6 @@ const initDB = async () => {
 };
 
 initDB();
-// Delete post and associated comments
-
 
 // Fetch userID based on email
 const fetchUserIDFromDb = async (email) => {
@@ -112,16 +108,16 @@ const fetchUsernameFromDb = async (email) => {
   }
 };
 
-// Custom hook for managing posts
+
 const usePosts = () => {
   const [posts, setPosts] = useState([]);
-  const [refreshCount, setRefreshCount] = useState(0); // A counter to trigger re-fetch
-  const [email, setEmail] = useState(null); // Store email from AsyncStorage
+  const [refreshCount, setRefreshCount] = useState(0); 
+  const [email, setEmail] = useState(null); 
 
   const selectPost = async (email) => {
     if (!email) {
       console.log("Email is not available");
-      return; // Avoid calling the DB if email is not available
+      return; 
     }
 
     console.log("Select Post");
@@ -146,7 +142,7 @@ const usePosts = () => {
       try {
         const storedEmail = await AsyncStorage.getItem("userEmail");
         if (storedEmail) {
-          setEmail(storedEmail); // Set the email to state
+          setEmail(storedEmail); 
         } else {
           console.log("Email is missing from AsyncStorage");
         }
@@ -156,16 +152,14 @@ const usePosts = () => {
     };
 
     getEmail();
-  }, []); // Run once when component mounts
+  }, []);
 
-  // Re-fetch posts when email is available or refreshCount changes
   useEffect(() => {
     if (email) {
-      selectPost(email); // Call selectPost only if email is available
+      selectPost(email); 
     }
-  }, [email, refreshCount]); // Trigger selectPost when email or refreshCount changes
+  }, [email, refreshCount]);
 
-  // This will allow manual refreshing
   const refresh = () => {
     setRefreshCount(prevCount => prevCount + 1);
   };
@@ -173,7 +167,6 @@ const usePosts = () => {
   return { posts, refresh };
 };
 
-// Insert post function
 const insertPost = async (userID, content) => {
   console.log("Insert Post");
   if (content.trim() === "") {
@@ -181,7 +174,6 @@ const insertPost = async (userID, content) => {
     return;
   }
   try {
-    // Open the database
     const db = await SQLite.openDatabaseAsync("friendfinder");
 
     const result = await db.runAsync(
@@ -189,12 +181,9 @@ const insertPost = async (userID, content) => {
       userID,
       content
     );
-
-    // Log the result of the insert
     console.log("Inserted Post ID:", result.lastInsertRowId);
     console.log("Changes:", result.changes);
 
-    // Optionally, you can close the database connection
     await db.closeAsync();
   } catch (e) {
     console.log("Error: ", e);
@@ -333,9 +322,9 @@ const fetchLikesCount = async (postID) => {
         FROM post 
         JOIN user ON post.UserID = user.UserID
       `);
-      setPosts(allPosts);
+     
     } catch (e) {
-      console.log('Error fetching posts:', e);
+      
     }
   };
 
@@ -485,11 +474,6 @@ export default function HomeStackScreen() {
         name="Home"
         component={HomeScreen}
         options={{ title: "Home" , headerShown: false}}
-      />
-      <HomeStack.Screen
-        name="AddLocation"
-        component={AddLocationScreen}
-        options={{ title: "Add Location" }}
       />
       <HomeStack.Screen
         name="Comments"

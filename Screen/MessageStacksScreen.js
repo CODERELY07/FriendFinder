@@ -14,21 +14,21 @@ import Icon from "react-native-vector-icons/Ionicons";
 import * as SQLite from "expo-sqlite";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Open SQLite database
+
 const db = SQLite.openDatabaseAsync("friendfinder");
 
-// MessagesScreen Component
+
 function MessagesScreen({ navigation }) {
   const [messages, setMessages] = React.useState([]);
   const [message, setMessage] = React.useState("");
   const [username, setUsername] = React.useState(null);
-  const flatListRef = React.useRef(null); // Ref for FlatList
+  const flatListRef = React.useRef(null); 
 
   React.useEffect(() => {
     const initDB = async () => {
       try {
         const db = await SQLite.openDatabaseAsync("friendfinder");
-   
+ 
         await db.execAsync(`
           CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,7 +70,7 @@ function MessagesScreen({ navigation }) {
 
       setMessages(result.map(msg => ({
         ...msg,
-        timestamp: new Date(msg.timestamp).toLocaleString(), // Format timestamp
+        timestamp: new Date(msg.timestamp).toLocaleString(), 
       })));
     } catch (error) {
       console.error("Error fetching messages:", error);
@@ -89,17 +89,16 @@ function MessagesScreen({ navigation }) {
 
     try {
       const db = await SQLite.openDatabaseAsync("friendfinder");
-      const timestamp = new Date().toISOString(); // Get current timestamp
+      const timestamp = new Date().toISOString(); 
 
       await db.runAsync(
         "INSERT INTO messages (username, content, timestamp) VALUES (?, ?, ?)",
         [username, message, timestamp]
       );
 
-      setMessage(""); // Clear the input field
-      fetchMessages(); // Refresh message list
+      setMessage(""); 
+      fetchMessages(); 
 
-      // Scroll to the bottom
       flatListRef.current?.scrollToEnd({ animated: true });
     } catch (error) {
       console.error("Error sending message:", error);
@@ -130,7 +129,6 @@ function MessagesScreen({ navigation }) {
           </Text>
         </View>
   
-        {/* Timestamp aligned with message side */}
         <Text
           style={[
             styles.timestamp,
@@ -146,15 +144,14 @@ function MessagesScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        ref={flatListRef} // Attach FlatList ref
+        ref={flatListRef} 
         data={messages}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.messagesList}
-        // Removed inverted prop to show oldest messages first
+       
       />
 
-      {/* Message Input Field (Below message list) */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -255,9 +252,9 @@ const styles = StyleSheet.create({
     marginBottom:12,
   },
   userTimestamp: {
-    textAlign: "right", // Right aligned for user messages
+    textAlign: "right", 
   },
   otherTimestamp: {
-    textAlign: "left", // Left aligned for other messages
+    textAlign: "left",
   },
 });

@@ -82,7 +82,7 @@ const SigninScreen = ({ navigation }) => {
     const checkLoginStatus = async () => {
       const userEmail = await AsyncStorage.getItem("userEmail");
       if (userEmail) {
-        navigation.navigate("Main"); // Redirect to HomeStack if logged in
+        navigation.navigate("Main"); 
       }
     };
     checkLoginStatus();
